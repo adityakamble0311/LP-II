@@ -15,7 +15,7 @@ def graph_coloring_util(graph, m, color, v):
                 return True
             color[v] = 0
     return False
-
+    
 def graph_coloring(graph, m):
     color = [0] * len(graph)
     if not graph_coloring_util(graph, m, color, 0):

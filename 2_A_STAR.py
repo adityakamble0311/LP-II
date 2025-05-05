@@ -1,74 +1,44 @@
-# 
-class Graph:
-    def __init__(self, adjac_lis):
-        self.adjac_lis = adjac_lis
+from queue import PriorityQueue
 
-    def get_neighbours(self, v):
-        return self.adjac_lis[v]
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1]) 
 
-    def h(self, n):
-        H = {
-            'A': 1,
-            'B': 1,
-            'C': 1,
-            'D': 1
-        }
-        return H[n]
+def astar(grid, start, goal):
+    open_set = PriorityQueue()
+    open_set.put((0, start))
+    came_from = {}
+    g = {start: 0}
 
-    def a_star_algorithm(self, start, stop):
-        open_lst = set([start])
-        closed_lst = set()   #explored node
-        poo = {start: 0}
-        par = {start: start}
+    while not open_set.empty():
+        _, current = open_set.get()
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]
 
-        while open_lst:
-            n = None
-            for v in open_lst:
-                if n is None or poo[v] + self.h(v) < poo[n] + self.h(n):
-                    n = v
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nx, ny = current[0]+dx, current[1]+dy
+            neighbor = (nx, ny)
+            if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0:
+                temp_g = g[current] + 1
+                if neighbor not in g or temp_g < g[neighbor]:
+                    g[neighbor] = temp_g
+                    f = temp_g + heuristic(neighbor, goal)
+                    open_set.put((f, neighbor))
+                    came_from[neighbor] = current
+    return None
 
-            if n is None:
-                print('Path not found')
-                return None
+# Example usage
+grid = [
+    [0,1,0,0,0],
+    [0,1,0,1,0],
+    [0,0,0,1,0],
+    [1,1,0,0,0]
+]
+start = (0,0)
+goal = (3,4)
 
-            if n == stop:
-                reconst_path = []
-                while par[n] != n:
-                    reconst_path.append(n)
-                    n = par[n]
-                reconst_path.append(start)
-                reconst_path.reverse()
-                print('Path found: {}'.format(reconst_path))
-                return reconst_path
-
-            for (m, weight) in self.get_neighbours(n):
-                if m not in open_lst and m not in closed_lst:
-                    open_lst.add(m)
-                    par[m] = n
-                    poo[m] = poo[n] + weight
-                else:
-                    if poo[m] > poo[n] + weight:
-                        poo[m] = poo[n] + weight
-                        par[m] = n
-                        if m in closed_lst:
-                            closed_lst.remove(m)
-                            open_lst.add(m)
-
-            open_lst.remove(n)
-            closed_lst.add(n)
-
-        print('Path not found')
-        return None
-
-
-
-if __name__ == '__main__':
-    adjacency_list = {
-        'A': [('B', 1), ('C', 3)],
-        'B': [('D', 1)],
-        'C': [('D', 1)],
-        'D': []
-    }
-
-    g = Graph(adjacency_list)
-    g.a_star_algorithm('A', 'D')
+print("Path:", astar(grid, start, goal))

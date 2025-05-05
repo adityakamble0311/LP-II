@@ -1,5 +1,4 @@
 import heapq
-
 def dijkstra(graph, start):
     dist = {node: float('inf') for node in graph}
     dist[start] = 0
@@ -19,7 +18,6 @@ def dijkstra(graph, start):
 
     return dist
 
-# Example Graph
 graph = {
     'A': [('B', 1), ('C', 4)],
     'B': [('C', 2), ('D', 5)],
